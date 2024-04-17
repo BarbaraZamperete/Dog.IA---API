@@ -4,9 +4,9 @@ from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
 # Register your models here.
 
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome',  'login', 'data_criacao', 'data_alteracao')
+    list_display = ('id', 'nome', 'data_criacao', 'data_alteracao')
     list_display_links = ('id', 'nome')
-    search_fields = ('nome', 'login')
+    search_fields = ('nome',)
 
 class RacaAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome', 'data_criacao', 'data_alteracao')

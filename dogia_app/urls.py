@@ -18,4 +18,5 @@ urlpatterns = [
     path("imagens/<int:pk>/", views.atualizar_imagem, name='atualizar_imagem'),
     path("combinacoes/", views.combinacao_list, name='combinacoes_list'),
     path("combinacoes/adicionar", views.adicionar_combinacao, name='adiconar_combinacao'),
+    path('login/', views.CustomAuthToken.as_view()),
 ]

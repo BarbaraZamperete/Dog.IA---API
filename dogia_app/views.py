@@ -1,50 +1,79 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
-from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
+from .serializer import CustomUserSerializer, UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
 
 ###################################################################################
 ############################ USUÁRIOS #############################################
 @api_view(['GET'])
 def usuarios_list(request):
-    usuarios = Usuario.objects.all()
+    usuarios = Usuario.objects.select_related('user').all()
     serializer = UsuarioSerializer(usuarios, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def criar_usuario(request):
-    serializer = UsuarioSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Faça uma cópia mutável dos dados
+    mutable_data = request.data.copy()
+    
+    custom_user_serializer = CustomUserSerializer(data=mutable_data)
+    if custom_user_serializer.is_valid():
+        custom_user = custom_user_serializer.save()  # Salva o CustomUser
+        
+        # Adicione o id do CustomUser ao request data para o UsuarioSerializer
+        mutable_data['user'] = custom_user.id
+        print("***********************************")
+        print(custom_user.id)
+        usuario_serializer = UsuarioSerializer(data=mutable_data)
+        print(usuario_serializer)
+        print("----------------------------------------")
+        if usuario_serializer.is_valid():
+            usuario_serializer.save()
+            return Response(usuario_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(usuario_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(custom_user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET','PATCH'])
+
+@api_view(['GET', 'PATCH'])
 def atualizar_usuario(request, pk):
-    if request.method == "GET":
-        try:
-            usuario = Usuario.objects.get(pk=pk)
-        except Usuario.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        usuario = Usuario.objects.get(pk=pk)
+    except Usuario.DoesNotExist:
+        return Response({"error": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
+    if request.method == "GET":
         serializer = UsuarioSerializer(usuario)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    if request.method == "PATCH":
-        try:
-            usuario = Usuario.objects.get(pk=pk)
-        except Usuario.DoesNotExist:
-            return Response({"error": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UsuarioSerializer(usuario, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "PATCH":
+        custom_user_data = {'email': request.data.get('email')}  # Se necessário, adicione outros campos do CustomUser
+        custom_user_serializer = CustomUserSerializer(usuario.user, data=custom_user_data, partial=True)
+        if custom_user_serializer.is_valid():
+            custom_user = custom_user_serializer.save()  # Atualiza o CustomUser
+
+            usuario_data = request.data.copy()
+            usuario_data['user'] = custom_user.id  # Atualiza o id do CustomUser no Usuario
+            usuario_serializer = UsuarioSerializer(usuario, data=usuario_data, partial=True)
+            if usuario_serializer.is_valid():
+                usuario_serializer.save()
+                return Response(usuario_serializer.data, status=status.HTTP_200_OK)
+            return Response(usuario_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(custom_user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

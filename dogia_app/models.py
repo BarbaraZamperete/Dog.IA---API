@@ -4,18 +4,48 @@ import uuid
 
 from django.contrib.postgres.fields import ArrayField
 
-# Create your models here.
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None):
+        user = self.create_user(email, password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.email
 
 class Usuario(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='usuario')
     nome = models.CharField(max_length=50)
-    login = models.CharField(max_length=20)
-    senha = models.CharField()
     telefone = models.CharField(max_length=15, default="")
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_alteracao = models.DateTimeField(null=True, blank=True)
 
     def __str__(self) -> str:
-        return self.login
+        return self.user.email
 
 
 class Raca(models.Model):
