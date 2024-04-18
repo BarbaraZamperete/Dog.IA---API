@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 from decouple import Config, Csv, RepositoryEnv
@@ -20,6 +21,9 @@ config = Config(RepositoryEnv(DOTENV_FILE))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'  # URL para acessar os arquivos de mídia no navegador
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')  # Caminho absoluto para o diretório de uploads
 
 
 # Quick-start development settings - unsuitable for production
