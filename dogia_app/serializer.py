@@ -63,27 +63,6 @@ class RacaSerializer(serializers.ModelSerializer):
         # Retorna a instância atualizada
         return raca
 
-class CachorroSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cachorro
-        fields = "__all__"
-    
-    def create(self, validated_data):
-        # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
-        # Cria a instância do cachorro
-        cachorro = super().create(validated_data)
-        # Retorna a instância criada
-        return cachorro
-
-    def update(self, instance, validated_data):
-        # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
-        # Atualiza a instância do cachorro
-        cachorro = super().update(instance, validated_data)
-        # Retorna a instância atualizada
-        return cachorro
-
 class ImagemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Imagem
@@ -105,6 +84,30 @@ class ImagemSerializer(serializers.ModelSerializer):
         # Retorna a instância atualizada
         return imagem
     
+
+class CachorroSerializer(serializers.ModelSerializer):
+    imagem  = ImagemSerializer(many=True, read_only=True)
+    class Meta:
+        model = Cachorro
+        fields = "__all__"
+    
+    def create(self, validated_data):
+        # Adiciona a data de criação
+        validated_data['data_criacao'] = datetime.now()
+        # Cria a instância do cachorro
+        cachorro = super().create(validated_data)
+        # Retorna a instância criada
+        return cachorro
+
+    def update(self, instance, validated_data):
+        # Adiciona a data de modificação
+        validated_data['data_alteracao'] = datetime.now()
+        # Atualiza a instância do cachorro
+        cachorro = super().update(instance, validated_data)
+        # Retorna a instância atualizada
+        return cachorro
+
+
 
 class CombinacaoSerializer(serializers.ModelSerializer):
     class Meta:

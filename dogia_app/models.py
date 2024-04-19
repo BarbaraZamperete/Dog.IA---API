@@ -92,7 +92,7 @@ def generate_filename(instance, filename):
 class Imagem(models.Model):
     caminho = models.ImageField(upload_to=generate_filename, null=False)
     embedding = ArrayField(models.FloatField(), blank=True, null=True)
-    cachorro = models.ForeignKey(Cachorro, on_delete=models.CASCADE, null=False, related_name='cachorro')
+    cachorro = models.ForeignKey(Cachorro, on_delete=models.CASCADE, null=False, related_name='imagem')
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_alteracao = models.DateTimeField(null=True, blank=True)
     
