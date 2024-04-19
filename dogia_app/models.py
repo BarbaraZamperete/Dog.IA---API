@@ -87,7 +87,8 @@ def generate_filename(instance, filename):
     # id_string = str(instance.id).zfill(2)
     # Adiciona o ID da foto e o valor aleatório ao nome do arquivo
     filename = f"{random_value}.{ext}"
-    return os.path.join('uploads/', filename)
+    # return os.path.join('uploads/', filename)
+    return filename
 
 class Imagem(models.Model):
     caminho = models.ImageField(upload_to=generate_filename, null=False)
