@@ -110,13 +110,23 @@ def cachorro_list(request):
 
 @api_view(['GET'])
 def cachorro_buscados(request):
-    cachorro = Cachorro.objects.filter(tipo=1)
+
+    usuario = request.query_params.get('usuario')
+    if usuario:
+        cachorro = Cachorro.objects.filter(tipo=1,  usuario_id=usuario)
+    else:
+        cachorro = Cachorro.objects.filter(tipo=1)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def cachorro_avistados(request):
-    cachorro = Cachorro.objects.filter(tipo=2)
+    
+    usuario = request.query_params.get('usuario')
+    if usuario:
+        cachorro = Cachorro.objects.filter(tipo=2,  usuario_id=usuario)
+    else:
+        cachorro = Cachorro.objects.filter(tipo=2)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -204,6 +214,18 @@ def combinacao_list(request):
     serializer = CombinacaoSerializer(combinacao, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def combinacoes_por_id_buscado(request, id_buscado):
+    combinacoes = Combinacao.objects.filter(id_buscado=id_buscado).order_by('-score')
+    serializer = CombinacaoSerializer(combinacoes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def combinacoes_por_id_avistado(request, id_avistado):
+    combinacoes = Combinacao.objects.filter(id_avistado=id_avistado).order_by('-score')
+    serializer = CombinacaoSerializer(combinacoes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 def adicionar_combinacao(request):
     id_cachorro = request.data.get('id_cachorro')
@@ -216,6 +238,7 @@ def adicionar_combinacao(request):
     # Verifica se o ID pertence a um cachorro buscado
     if cachorro.tipo == 1:
         cachorros_avistados = Cachorro.objects.filter(tipo=2)
+
         for avistado in cachorros_avistados:
             combinacao = Combinacao.objects.create(
                 score=0.0,  # Defina a pontuação inicial conforme necessário
