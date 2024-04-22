@@ -67,7 +67,7 @@ class Cachorro(models.Model):
         (2, 'Avistado'),
     )
 
-    nome = models.CharField(max_length=50, default=None, null=True)
+    nome = models.CharField(max_length=50, default=None, null=True, blank=True)
     raca = models.ForeignKey(Raca, on_delete=models.CASCADE, null=False, related_name='raca')
     genero = models.SmallIntegerField(choices=GENERO_CHOICES)
     status = models.BooleanField(default=True)
