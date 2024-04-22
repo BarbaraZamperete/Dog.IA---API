@@ -67,7 +67,7 @@ class Cachorro(models.Model):
         (2, 'Avistado'),
     )
 
-    nome = models.CharField(max_length=50, default=None)
+    nome = models.CharField(max_length=50, default=None, null=True)
     raca = models.ForeignKey(Raca, on_delete=models.CASCADE, null=False, related_name='raca')
     genero = models.SmallIntegerField(choices=GENERO_CHOICES)
     status = models.BooleanField(default=True)
@@ -78,6 +78,12 @@ class Cachorro(models.Model):
     
     def __str__(self) -> str:
         return f'{self.id} - {self.nome}'
+
+    def get_genero_display(self):
+        return dict(self.GENERO_CHOICES).get(self.genero)
+
+    def get_tipo_display(self):
+        return dict(self.TIPO_CHOICES).get(self.tipo)
 
 def generate_filename(instance, filename):
     # Obtém a extensão do arquivo original
