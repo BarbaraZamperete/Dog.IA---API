@@ -87,6 +87,10 @@ class ImagemSerializer(serializers.ModelSerializer):
 
 class CachorroSerializer(serializers.ModelSerializer):
     imagem  = ImagemSerializer(many=True, read_only=True)
+    raca = RacaSerializer()
+    genero_display = serializers.CharField(source='get_genero_display', read_only=True)
+    tipo_display = serializers.CharField(source='get_tipo_display', read_only=True)
+
     class Meta:
         model = Cachorro
         fields = "__all__"
@@ -110,6 +114,8 @@ class CachorroSerializer(serializers.ModelSerializer):
 
 
 class CombinacaoSerializer(serializers.ModelSerializer):
+    id_buscado = CachorroSerializer()
+    id_avistado = CachorroSerializer()
     class Meta:
         model = Combinacao
         fields = '__all__'
