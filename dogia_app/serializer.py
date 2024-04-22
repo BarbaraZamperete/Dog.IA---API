@@ -87,7 +87,7 @@ class ImagemSerializer(serializers.ModelSerializer):
 
 class CachorroSerializer(serializers.ModelSerializer):
     imagem  = ImagemSerializer(many=True, read_only=True)
-    raca = RacaSerializer()
+    raca_nome = serializers.StringRelatedField(source='raca.nome', read_only=True)
     genero_display = serializers.CharField(source='get_genero_display', read_only=True)
     tipo_display = serializers.CharField(source='get_tipo_display', read_only=True)
 
