@@ -226,43 +226,43 @@ def combinacoes_por_id_avistado(request, id_avistado):
     serializer = CombinacaoSerializer(combinacoes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-def adicionar_combinacao(request):
-    id_cachorro = request.data.get('id_cachorro')
+# @api_view(['POST'])
+# def adicionar_combinacao(request):
+#     id_cachorro = request.data.get('id_cachorro')
 
-    try:
-        cachorro = Cachorro.objects.get(pk=id_cachorro)
-    except Cachorro.DoesNotExist:
-        return Response({"error": "Cachorro não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+#     try:
+#         cachorro = Cachorro.objects.get(pk=id_cachorro)
+#     except Cachorro.DoesNotExist:
+#         return Response({"error": "Cachorro não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-    # Verifica se o ID pertence a um cachorro buscado
-    if cachorro.tipo == 1:
-        cachorros_avistados = Cachorro.objects.filter(tipo=2)
+#     # Verifica se o ID pertence a um cachorro buscado
+#     if cachorro.tipo == 1:
+#         cachorros_avistados = Cachorro.objects.filter(tipo=2)
 
-        for avistado in cachorros_avistados:
-            combinacao = Combinacao.objects.create(
-                score=0.0,  # Defina a pontuação inicial conforme necessário
-                distancia = 0.0,
-                score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
-                distancia_bruta = 0.0,
-                id_buscado=cachorro,
-                id_avistado=avistado
-            )
-            combinacao.save()
-    # Verifica se o ID pertence a um cachorro avistado
-    elif cachorro.tipo == 2:
-        cachorros_buscados = Cachorro.objects.filter(tipo=1)
-        for buscado in cachorros_buscados:
-            combinacao = Combinacao.objects.create(
-                score=0.0,  # Defina a pontuação inicial conforme necessário
-                distancia = 0.0,
-                score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
-                distancia_bruta = 0.0,
-                id_buscado=buscado,
-                id_avistado=cachorro
-            )
-            combinacao.save()
-    else:
-        return Response({"error": "Tipo de cachorro inválido."}, status=status.HTTP_400_BAD_REQUEST)
+#         for avistado in cachorros_avistados:
+#             combinacao = Combinacao.objects.create(
+#                 score=0.0,  # Defina a pontuação inicial conforme necessário
+#                 distancia = 0.0,
+#                 score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
+#                 distancia_bruta = 0.0,
+#                 id_buscado=cachorro,
+#                 id_avistado=avistado
+#             )
+#             combinacao.save()
+#     # Verifica se o ID pertence a um cachorro avistado
+#     elif cachorro.tipo == 2:
+#         cachorros_buscados = Cachorro.objects.filter(tipo=1)
+#         for buscado in cachorros_buscados:
+#             combinacao = Combinacao.objects.create(
+#                 score=0.0,  # Defina a pontuação inicial conforme necessário
+#                 distancia = 0.0,
+#                 score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
+#                 distancia_bruta = 0.0,
+#                 id_buscado=buscado,
+#                 id_avistado=cachorro
+#             )
+#             combinacao.save()
+#     else:
+#         return Response({"error": "Tipo de cachorro inválido."}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({"message": "Combinações criadas com sucesso."}, status=status.HTTP_201_CREATED)
+#     return Response({"message": "Combinações criadas com sucesso."}, status=status.HTTP_201_CREATED)
