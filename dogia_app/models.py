@@ -73,6 +73,7 @@ class Cachorro(models.Model):
     status = models.BooleanField(default=True)
     tipo = models.SmallIntegerField(choices=TIPO_CHOICES, null=False, default=1)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False, related_name='usuario')
+    descricao = models.CharField(max_length=255, default='', blank=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_alteracao = models.DateTimeField(null=True, blank=True)
     
