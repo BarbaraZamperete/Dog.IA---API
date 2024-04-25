@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from dogia_app.models import CustomUser, Usuario, Raca, Cachorro, Imagem, Combinacao
 from datetime import datetime
+from django.utils import timezone
 
 # Serializador para CustomUser (autenticação)
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -29,7 +30,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         # Associe o CustomUser recém-criado ao Usuario
         validated_data['user'] = custom_user
         # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
+        validated_data['data_criacao'] = timezone.now()
         # Cria a instância do usuário
         usuario = Usuario.objects.create(**validated_data)
         # Retorna a instância criada
@@ -37,7 +38,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
+        validated_data['data_alteracao'] = timezone.now()
         # Atualiza a instância do usuário
         usuario = super().update(instance, validated_data)
         # Retorna a instância atualizada
@@ -49,7 +50,7 @@ class RacaSerializer(serializers.ModelSerializer):
         fields = "__all__"
     def create(self, validated_data):
         # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
+        validated_data['data_criacao'] = timezone.now()
         # Cria a instância do cachorro
         raca = super().create(validated_data)
         # Retorna a instância criada
@@ -57,7 +58,7 @@ class RacaSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
+        validated_data['data_alteracao'] = timezone.now()
         # Atualiza a instância do cachorro
         raca = super().update(instance, validated_data)
         # Retorna a instância atualizada
@@ -70,7 +71,7 @@ class ImagemSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
+        validated_data['data_criacao'] = timezone.now()
         # Cria a instância da imagem
         imagem = super().create(validated_data)
         # Retorna a instância criada
@@ -78,7 +79,7 @@ class ImagemSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
+        validated_data['data_alteracao'] = timezone.now()
         # Atualiza a instância da imagem
         imagem = super().update(instance, validated_data)
         # Retorna a instância atualizada
@@ -97,7 +98,7 @@ class CachorroSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
+        validated_data['data_criacao'] = timezone.now()
         # Cria a instância do cachorro
         cachorro = super().create(validated_data)
         # Retorna a instância criada
@@ -105,7 +106,7 @@ class CachorroSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
+        validated_data['data_alteracao'] = timezone.now()
         # Atualiza a instância do cachorro
         cachorro = super().update(instance, validated_data)
         # Retorna a instância atualizada
@@ -122,7 +123,7 @@ class CombinacaoSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         # Adiciona a data de criação
-        validated_data['data_criacao'] = datetime.now()
+        validated_data['data_criacao'] = timezone.now()
         # Cria a instância da imagem
         combinacao = super().create(validated_data)
         # Retorna a instância criada
@@ -130,7 +131,7 @@ class CombinacaoSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Adiciona a data de modificação
-        validated_data['data_alteracao'] = datetime.now()
+        validated_data['data_alteracao'] = timezone.now()
         # Atualiza a instância da imagem
         combinacao = super().update(instance, validated_data)
         # Retorna a instância atualizada
