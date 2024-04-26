@@ -20,14 +20,19 @@ from rest_framework.authtoken import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
+from rest_framework.routers import DefaultRouter
 
-from dogia_app.views import UserLogIn
+from dogia_app.views import UserLogIn, UserViewSet
+
+router = DefaultRouter()
+router.register(r'usuarios', UserViewSet, basename='usuario')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('dogia_app.urls')),
     path('api-user-login/', UserLogIn.as_view()),
+    path('api-user/', include(router.urls)), 
     path('api-auth/', include('rest_framework.urls', namespace="rest_framework")),
     re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),
 ]

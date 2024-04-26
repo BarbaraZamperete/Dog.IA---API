@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
 from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -18,6 +18,36 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
     permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=False, methods=['get'])
+    def usuarios_list(self, request):
+        usuarios = self.get_queryset()
+        serializer = self.get_serializer(usuarios, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'])
+    def retornar_usuario(self, request, pk=None):
+        try:
+            usuario = self.get_object()
+        except Usuario.DoesNotExist:
+            return Response({"error": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(usuario)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserLogIn(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
@@ -30,49 +60,6 @@ class UserLogIn(ObtainAuthToken):
             'id': usuario.pk,
             'username': usuario.username
         })
-
-
-@api_view(['GET'])
-def usuarios_list(request):
-    usuarios = Usuario.objects.all()
-    serializer = UsuarioSerializer(usuarios, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def criar_usuario(request):
-    serializer = UsuarioSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET', 'PATCH'])
-def atualizar_usuario(request, pk):
-    try:
-        usuario = Usuario.objects.get(pk=pk)
-    except Usuario.DoesNotExist:
-        return Response({"error": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == "GET":
-        serializer = UsuarioSerializer(usuario)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    if request.method == "PATCH":
-        custom_user_data = {'email': request.data.get('email')}  # Se necessário, adicione outros campos do CustomUser
-        custom_user_serializer = CustomUserSerializer(usuario.user, data=custom_user_data, partial=True)
-        if custom_user_serializer.is_valid():
-            custom_user = custom_user_serializer.save()  # Atualiza o CustomUser
-
-            usuario_data = request.data.copy()
-            usuario_data['user'] = custom_user.id  # Atualiza o id do CustomUser no Usuario
-            usuario_serializer = UsuarioSerializer(usuario, data=usuario_data, partial=True)
-            if usuario_serializer.is_valid():
-                usuario_serializer.save()
-                return Response(usuario_serializer.data, status=status.HTTP_200_OK)
-            return Response(usuario_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(custom_user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 
