@@ -1,52 +1,50 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
-from .serializer import CustomUserSerializer, UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
+from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
 
-
-
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
 
 ###################################################################################
 ############################ USUÁRIOS #############################################
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    permission_classes = [IsAuthenticated]
+
+class UserLogIn(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        usuario = Usuario.objects.get(username=username)
+        token = Token.objects.get(user=usuario)
+        return Response({
+            'token': token.key,
+            'id': usuario.pk,
+            'username': usuario.username
+        })
+
+
 @api_view(['GET'])
 def usuarios_list(request):
-    usuarios = Usuario.objects.select_related('user').all()
+    usuarios = Usuario.objects.all()
     serializer = UsuarioSerializer(usuarios, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def criar_usuario(request):
-    # Faça uma cópia mutável dos dados
-    mutable_data = request.data.copy()
-    
-    custom_user_serializer = CustomUserSerializer(data=mutable_data)
-    if custom_user_serializer.is_valid():
-        custom_user = custom_user_serializer.save()  # Salva o CustomUser
-        
-        # Adicione o id do CustomUser ao request data para o UsuarioSerializer
-        mutable_data['user'] = custom_user.id
-        print("***********************************")
-        print(custom_user.id)
-        usuario_serializer = UsuarioSerializer(data=mutable_data)
-        print(usuario_serializer)
-        print("----------------------------------------")
-        if usuario_serializer.is_valid():
-            usuario_serializer.save()
-            return Response(usuario_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(usuario_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    return Response(custom_user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UsuarioSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PATCH'])
@@ -225,44 +223,3 @@ def combinacoes_por_id_avistado(request, id_avistado):
     combinacoes = Combinacao.objects.filter(id_avistado=id_avistado).order_by('-score')
     serializer = CombinacaoSerializer(combinacoes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-# @api_view(['POST'])
-# def adicionar_combinacao(request):
-#     id_cachorro = request.data.get('id_cachorro')
-
-#     try:
-#         cachorro = Cachorro.objects.get(pk=id_cachorro)
-#     except Cachorro.DoesNotExist:
-#         return Response({"error": "Cachorro não encontrado."}, status=status.HTTP_404_NOT_FOUND)
-
-#     # Verifica se o ID pertence a um cachorro buscado
-#     if cachorro.tipo == 1:
-#         cachorros_avistados = Cachorro.objects.filter(tipo=2)
-
-#         for avistado in cachorros_avistados:
-#             combinacao = Combinacao.objects.create(
-#                 score=0.0,  # Defina a pontuação inicial conforme necessário
-#                 distancia = 0.0,
-#                 score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
-#                 distancia_bruta = 0.0,
-#                 id_buscado=cachorro,
-#                 id_avistado=avistado
-#             )
-#             combinacao.save()
-#     # Verifica se o ID pertence a um cachorro avistado
-#     elif cachorro.tipo == 2:
-#         cachorros_buscados = Cachorro.objects.filter(tipo=1)
-#         for buscado in cachorros_buscados:
-#             combinacao = Combinacao.objects.create(
-#                 score=0.0,  # Defina a pontuação inicial conforme necessário
-#                 distancia = 0.0,
-#                 score_bruto=0.0,  # Defina a pontuação inicial conforme necessário
-#                 distancia_bruta = 0.0,
-#                 id_buscado=buscado,
-#                 id_avistado=cachorro
-#             )
-#             combinacao.save()
-#     else:
-#         return Response({"error": "Tipo de cachorro inválido."}, status=status.HTTP_400_BAD_REQUEST)
-
-#     return Response({"message": "Combinações criadas com sucesso."}, status=status.HTTP_201_CREATED)

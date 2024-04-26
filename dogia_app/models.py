@@ -5,47 +5,20 @@ import uuid
 from django.contrib.postgres.fields import ArrayField
 
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
-        if not email:
-            raise ValueError('The Email field must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
 
-    def create_superuser(self, email, password=None):
-        user = self.create_user(email, password)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
-
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
-
-    is_staff = models.BooleanField(default=False)
-
-    objects = CustomUserManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    def __str__(self):
-        return self.email
-
-class Usuario(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='usuario')
-    nome = models.CharField(max_length=50)
+class Usuario(AbstractUser):
+  
     telefone = models.CharField(max_length=15, default="")
-    data_criacao = models.DateTimeField(auto_now_add=True)
+    
     data_alteracao = models.DateTimeField(null=True, blank=True)
 
+    groups = models.ManyToManyField(Group, related_name='custom_user_groups')
+    user_permissions = models.ManyToManyField(Permission, related_name='custom_user_permissions')
+
     def __str__(self) -> str:
-        return self.user.email
+        return self.email
 
 
 class Raca(models.Model):

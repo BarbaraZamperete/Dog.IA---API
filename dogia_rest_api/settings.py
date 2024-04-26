@@ -39,6 +39,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # Allowed hosts
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
+
 
 
 # Application definition
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
     'dogia_app',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,6 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     # 'rest_framework.authtoken.middleware.TokenMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -87,7 +93,11 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',  # Add this line
     ],
 }
@@ -124,7 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'dogia_app.CustomUser'  # Substitua 'myapp' pelo nome do aplicativo que contém o modelo de usuário personalizado
+# AUTH_USER_MODEL = 'dogia_app.CustomUser'  # Substitua 'myapp' pelo nome do aplicativo que contém o modelo de usuário personalizado
+AUTH_USER_MODEL = 'dogia_app.Usuario'
 
 
 
