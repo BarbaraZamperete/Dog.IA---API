@@ -8,6 +8,7 @@ urlpatterns = [
     path("cachorros/", views.cachorro_list, name='cachorro_list'),
     path("cachorros/buscados", views.cachorro_buscados, name='cachorros_buscados'),
     path("cachorros/avistados", views.cachorro_avistados, name='cachorros_avistados'),
+    path("cachorros/<int:pk>/", views.cachorro_get, name='cachorro_get'),
     path("cachorros/<int:pk>/", views.atualizar_cachorro, name='atualizar_cachorro'),
     path("cachorros/adicionar/", views.adicionar_cachorro, name='adicionar_cachorro'),  
     path("imagens/", views.imagem_list, name='imagens_list'),

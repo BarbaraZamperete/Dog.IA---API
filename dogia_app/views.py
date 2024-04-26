@@ -3,11 +3,12 @@ from django.http import JsonResponse
 from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
 from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes, authentication_classes
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
 
 
@@ -17,6 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -25,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny], authentication_classes=[])
     def usuarios_list(self, request):
         usuarios = self.get_queryset()
         serializer = self.get_serializer(usuarios, many=True)
@@ -66,6 +68,7 @@ class UserLogIn(ObtainAuthToken):
 ###################################################################################
 ############################ RAÇA #################################################
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def racas_list(request):
     racas = Raca.objects.all()
     serializer = RacaSerializer(racas, many=True)
@@ -88,28 +91,46 @@ def raca_id(request, pk):
 ####################################################################################
 ############################ CACHORROS #############################################
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def cachorro_list(request):
     cachorro = Cachorro.objects.all()
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def cachorro_buscados(request):
+@permission_classes([AllowAny])
+def cachorro_get(request, pk):
+    try:
+        cachorro = Cachorro.objects.get(pk=pk)
+    except Cachorro.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
+    serializer = CachorroSerializer(cachorro)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cachorro_buscados(request):
     usuario = request.query_params.get('usuario')
     if usuario:
-        cachorro = Cachorro.objects.filter(tipo=1,  usuario_id=usuario)
+        if request.user.is_authenticated:
+            cachorro = Cachorro.objects.filter(tipo=1, usuario_id=usuario)
+        else:
+            return Response({"error": "Acesso não autorizado."}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         cachorro = Cachorro.objects.filter(tipo=1)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def cachorro_avistados(request):
-    
     usuario = request.query_params.get('usuario')
     if usuario:
-        cachorro = Cachorro.objects.filter(tipo=2,  usuario_id=usuario)
+        if request.user.is_authenticated:
+            cachorro = Cachorro.objects.filter(tipo=1, usuario_id=usuario)
+        else:
+            return Response({"error": "Acesso não autorizado."}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         cachorro = Cachorro.objects.filter(tipo=2)
     serializer = CachorroSerializer(cachorro, many=True)
@@ -123,28 +144,18 @@ def adicionar_cachorro(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PATCH'])
+@api_view(['PATCH'])
 def atualizar_cachorro(request, pk):
-    if request.method == "GET":
-        try:
-            cachorro = Cachorro.objects.get(pk=pk)
-        except Cachorro.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        cachorro = Cachorro.objects.get(pk=pk)
+    except Cachorro.DoesNotExist:
+        return Response({"error": "Cachorro não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = CachorroSerializer(cachorro)
+    serializer = CachorroSerializer(cachorro, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    if request.method == "PATCH":
-        try:
-            cachorro = Cachorro.objects.get(pk=pk)
-        except Cachorro.DoesNotExist:
-            return Response({"error": "Cachorro não encontrado."}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = CachorroSerializer(cachorro, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -194,18 +205,21 @@ def atualizar_imagem(request, pk):
 ############################ COMBINACAO #############################################
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def combinacao_list(request):
     combinacao = Combinacao.objects.all()
     serializer = CombinacaoSerializer(combinacao, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def combinacoes_por_id_buscado(request, id_buscado):
     combinacoes = Combinacao.objects.filter(id_buscado=id_buscado).order_by('-score')
     serializer = CombinacaoSerializer(combinacoes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def combinacoes_por_id_avistado(request, id_avistado):
     combinacoes = Combinacao.objects.filter(id_avistado=id_avistado).order_by('-score')
     serializer = CombinacaoSerializer(combinacoes, many=True)
