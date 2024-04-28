@@ -37,10 +37,11 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Allowed hosts
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
+ALLOWED_HOSTS=["10.0.0.114", "127.0.0.1", "localhost"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "http://10.0.0.114:4200"
 ]
 
 

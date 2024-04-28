@@ -145,7 +145,7 @@ def cachorro_avistados(request):
     usuario = request.query_params.get('usuario')
     if usuario:
         if request.user.is_authenticated:
-            cachorro = Cachorro.objects.filter(tipo=1, usuario_id=usuario)
+            cachorro = Cachorro.objects.filter(tipo=2, usuario_id=usuario)
         else:
             return Response({"error": "Acesso não autorizado."}, status=status.HTTP_401_UNAUTHORIZED)
     else:
