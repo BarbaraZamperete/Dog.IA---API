@@ -20,12 +20,29 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication]
 
+    def get_permissions(self):
+        if self.action == 'create':  # Remover permissões para a função create
+            self.permission_classes = [AllowAny]
+        return super().get_permissions()
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        # Gerar token de autenticação para o usuário recém-criado
+        user = serializer.instance  # Instância do usuário recém-criado
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Preparar dados de resposta
+        response_data = {
+            'user_id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'token': token.key  # Chave do token de autenticação
+        }
+
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny], authentication_classes=[])
     def usuarios_list(self, request):
