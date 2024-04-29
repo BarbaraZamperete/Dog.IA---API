@@ -231,13 +231,13 @@ def combinacao_list(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def combinacoes_por_id_buscado(request, id_buscado):
-    combinacoes = Combinacao.objects.filter(id_buscado=id_buscado).order_by('-score')
+    combinacoes = Combinacao.objects.filter(id_buscado=id_buscado).order_by('-score')[:10]
     serializer = CombinacaoSerializer(combinacoes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def combinacoes_por_id_avistado(request, id_avistado):
-    combinacoes = Combinacao.objects.filter(id_avistado=id_avistado).order_by('-score')
+    combinacoes = Combinacao.objects.filter(id_avistado=id_avistado).order_by('-score')[:10]
     serializer = CombinacaoSerializer(combinacoes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
