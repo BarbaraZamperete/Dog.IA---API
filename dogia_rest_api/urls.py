@@ -34,6 +34,7 @@ urlpatterns = [
     path('api-user-login/', UserLogIn.as_view()),
     path('api-user/', include(router.urls)), 
     path('api-auth/', include('rest_framework.urls', namespace="rest_framework")),
+    path('api-token-verify/', views.obtain_auth_token),
     re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),
 ]
 
