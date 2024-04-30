@@ -18,7 +18,7 @@ class Usuario(AbstractUser):
     user_permissions = models.ManyToManyField(Permission, related_name='custom_user_permissions')
 
     def __str__(self) -> str:
-        return self.email
+        return self.username
 
 
 class Raca(models.Model):
