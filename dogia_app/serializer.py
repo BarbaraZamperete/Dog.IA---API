@@ -4,9 +4,11 @@ from datetime import datetime
 from django.utils import timezone
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)  # Define o campo da senha como write_only
+
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'telefone', 'email')
+        fields = ('id', 'username', 'telefone', 'password')  # Inclui o campo da senha nos campos serializados
     
 
     def update(self, instance, validated_data):
