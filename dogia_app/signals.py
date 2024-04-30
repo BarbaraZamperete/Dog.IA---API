@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.conf import settings
 from rest_framework.authtoken.models import Token
@@ -122,3 +122,10 @@ def process_image(sender, instance, created, **kwargs):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+@receiver(pre_delete, sender=Cachorro)
+def delete_cachorro_images(sender, instance, **kwargs):
+    # Excluir imagens associadas ao cachorro ao excluir o cachorro
+    for imagem in instance.imagem.all():
+        imagem.caminho.delete()  # Exclui a imagem do diretório de uploads
