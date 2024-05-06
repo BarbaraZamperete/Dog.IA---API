@@ -14,7 +14,7 @@ class RacaAdmin(admin.ModelAdmin):
     search_fields = ('id', 'nome')
 
 class CachorroAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'genero','raca', 'tipo', 'status', 'usuario')
+    list_display = ('id', 'nome', 'genero','raca', 'tipo', 'status', 'usuario', 'data_criacao')
     list_display_links = ('id', 'nome')
     search_fields = ('id', 'nome', 'status')
     list_editable = ('status',)

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'dogia_app',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_cron',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -100,6 +101,10 @@ REST_FRAMEWORK = {
 }
 
 WSGI_APPLICATION = 'dogia_rest_api.wsgi.application'
+
+CRON_CLASSES = [
+    'dogia_app.cron.UpdateDogStatusCronJob',
+]
 
 
 DATABASES = {
