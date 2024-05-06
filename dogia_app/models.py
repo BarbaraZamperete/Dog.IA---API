@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.forms import ValidationError
 
 
 class Usuario(AbstractUser):
@@ -20,6 +21,14 @@ class Usuario(AbstractUser):
     def __str__(self) -> str:
         return self.username
 
+class UsuarioAvista(models.Model):
+    nome = models.CharField(max_length=150)
+    telefone = models.CharField(max_length=15)
+    data_alteracao = models.DateTimeField(null=True, blank=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nome
 
 class Raca(models.Model):
     nome = models.CharField(max_length=50)
@@ -45,7 +54,8 @@ class Cachorro(models.Model):
     genero = models.SmallIntegerField(choices=GENERO_CHOICES)
     status = models.BooleanField(default=True)
     tipo = models.SmallIntegerField(choices=TIPO_CHOICES, null=False, default=1)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=False, related_name='usuario')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True, related_name='usuario')
+    usuario_avista = models.ForeignKey(UsuarioAvista, on_delete=models.CASCADE, null=True, blank=True, related_name='usuario_avista')
     descricao = models.CharField(max_length=255, default='', blank=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
     data_alteracao = models.DateTimeField(null=True, blank=True)
@@ -58,6 +68,12 @@ class Cachorro(models.Model):
 
     def get_tipo_display(self):
         return dict(self.TIPO_CHOICES).get(self.tipo)
+    
+    def clean(self):
+        if not self.usuario and not self.usuario_avista:
+            raise ValidationError('Um cachorro deve ter um usuário ou um usuário avista.')
+        if self.usuario and self.usuario_avista:
+            raise ValidationError('Um cachorro deve ter um usuário ou um usuário avista. Não ambos')
 
 def generate_filename(instance, filename):
     # Obtém a extensão do arquivo original

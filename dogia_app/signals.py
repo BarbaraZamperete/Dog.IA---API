@@ -49,7 +49,7 @@ def process_image(sender, instance, created, **kwargs):
         if (instance.cachorro.tipo == 1):
         
             # Get all images of opposite type
-            imgs_cachorros_1 = Imagem.objects.filter(cachorro__tipo=2)
+            imgs_cachorros_1 = Imagem.objects.filter(cachorro__tipo=2, cachorro__status=True)
 
             # Create combinations with the new image and all opposite type images
             for img_1 in imgs_cachorros_1:
@@ -84,7 +84,7 @@ def process_image(sender, instance, created, **kwargs):
         if (instance.cachorro.tipo == 2):
         
             # Get all images of opposite type
-            imgs_cachorros_1 = Imagem.objects.filter(cachorro__tipo=1)
+            imgs_cachorros_1 = Imagem.objects.filter(cachorro__tipo=1, cachorro__status=True)
 
             # Create combinations with the new image and all opposite type images
             for img_1 in imgs_cachorros_1:

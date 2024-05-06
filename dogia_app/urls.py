@@ -5,9 +5,11 @@ from . import views
 urlpatterns = [
     path("racas/", views.racas_list, name='racas_list'),
     path("racas/<int:pk>/", views.raca_id, name='raca_id'),
+    path("usuario/adicionar", views.criar_usuario_avista, name='criar_usuario_avistado'),
+    path("usuario/", views.retornar_usuario_avista, name='retornar_usuario_avista'),
     path("cachorros/", views.cachorro_list, name='cachorro_list'),
-    path("cachorros/buscados", views.cachorro_buscados, name='cachorros_buscados'),
-    path("cachorros/avistados", views.cachorro_avistados, name='cachorros_avistados'),
+    path("cachorros/buscados", views.cachorro_buscados_actives, name='cachorros_buscados'),
+    path("cachorros/avistados", views.cachorro_avistados_actives, name='cachorros_avistados'),
     path("cachorros/<int:pk>/", views.cachorro_get, name='cachorro_get'),
     path("cachorros/<int:pk>/", views.atualizar_cachorro, name='atualizar_cachorro'),
     path("cachorros/adicionar/", views.adicionar_cachorro, name='adicionar_cachorro'),  

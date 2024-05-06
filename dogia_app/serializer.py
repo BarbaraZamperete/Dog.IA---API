@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from dogia_app.models import Usuario, Raca, Cachorro, Imagem, Combinacao
+from dogia_app.models import Usuario, Raca, Cachorro, Imagem, Combinacao, UsuarioAvista
 from datetime import datetime
 from django.utils import timezone
 
@@ -18,6 +18,22 @@ class UsuarioSerializer(serializers.ModelSerializer):
         usuario = super().update(instance, validated_data)
         # Retorna a instância atualizada
         return usuario
+
+class UsuarioAvistaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioAvista
+        fields = ['id', 'telefone', 'data_alteracao']
+
+    def create(self, validated_data):
+        validated_data['data_criacao'] = timezone.now()
+        usuario_avista = super().create(validated_data)
+        return usuario_avista
+
+    def update(self, instance, validated_data):
+        instance.telefone = validated_data.get('telefone', instance.telefone)
+        instance.data_alteracao = validated_data.get('data_alteracao', instance.data_alteracao)
+        instance.save()
+        return instance
 
 class RacaSerializer(serializers.ModelSerializer):
     class Meta:

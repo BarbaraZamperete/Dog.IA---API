@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
+from .models import Usuario, Raca, Cachorro, Imagem, Combinacao, UsuarioAvista
 
 # Register your models here.
 
@@ -7,6 +7,11 @@ class UsuarioAdmin(admin.ModelAdmin):
     list_display = ('id', 'first_name', 'username', 'email', 'is_active', 'is_superuser', 'is_staff', 'last_login' )
     list_display_links = ('id', 'username')
     search_fields = ('nome', 'username')
+
+class UsuarioAvistaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'telefone', "data_criacao")
+    list_display_links = ('id',)
+    search_fields = ('nome', 'telefone')
 
 class RacaAdmin(admin.ModelAdmin):
     list_display = ('id', 'nome', 'data_criacao', 'data_alteracao')
@@ -31,6 +36,7 @@ class CombinacaoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Usuario, UsuarioAdmin)
+admin.site.register(UsuarioAvista, UsuarioAvistaAdmin)
 admin.site.register(Raca, RacaAdmin)
 admin.site.register(Cachorro, CachorroAdmin)
 admin.site.register(Imagem, ImagemAdmin)

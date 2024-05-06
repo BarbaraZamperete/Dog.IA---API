@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Usuario, Raca, Cachorro, Imagem, Combinacao
-from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer
+from .models import Usuario, Raca, Cachorro, Imagem, Combinacao, UsuarioAvista
+from .serializer import UsuarioSerializer, RacaSerializer, CachorroSerializer, ImagemSerializer, CombinacaoSerializer, UsuarioAvistaSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, action, permission_classes, authentication_classes
 from rest_framework import status
@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
 from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ObjectDoesNotExist
 
 
 ###################################################################################
@@ -82,6 +83,27 @@ class UserLogIn(ObtainAuthToken):
         }, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def criar_usuario_avista(request):
+    if request.method == 'POST':
+        serializer = UsuarioAvistaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Método não permitido'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def retornar_usuario_avista(request, id):
+    try:
+        usuario_avista = UsuarioAvista.objects.get(id=id)
+    except ObjectDoesNotExist:
+        return Response({'error': 'Usuário avista não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UsuarioAvistaSerializer(usuario_avista)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 ###################################################################################
 ############################ RAÇA #################################################
@@ -111,7 +133,7 @@ def raca_id(request, pk):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cachorro_list(request):
-    cachorro = Cachorro.objects.all()
+    cachorro = Cachorro.objects.filter(status=True)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -128,33 +150,34 @@ def cachorro_get(request, pk):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def cachorro_buscados(request):
+def cachorro_buscados_actives(request):
     usuario = request.query_params.get('usuario')
     if usuario:
         if request.user.is_authenticated:
-            cachorro = Cachorro.objects.filter(tipo=1, usuario_id=usuario)
+            cachorro = Cachorro.objects.filter(tipo=1, usuario_id=usuario, status=True)
         else:
             return Response({"error": "Acesso não autorizado."}, status=status.HTTP_401_UNAUTHORIZED)
     else:
-        cachorro = Cachorro.objects.filter(tipo=1)
+        cachorro = Cachorro.objects.filter(tipo=1, status=True)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def cachorro_avistados(request):
+def cachorro_avistados_actives(request):
     usuario = request.query_params.get('usuario')
     if usuario:
         if request.user.is_authenticated:
-            cachorro = Cachorro.objects.filter(tipo=2, usuario_id=usuario)
+            cachorro = Cachorro.objects.filter(tipo=2, usuario_id=usuario, status=True)
         else:
             return Response({"error": "Acesso não autorizado."}, status=status.HTTP_401_UNAUTHORIZED)
     else:
-        cachorro = Cachorro.objects.filter(tipo=2)
+        cachorro = Cachorro.objects.filter(tipo=2, status=True)
     serializer = CachorroSerializer(cachorro, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def adicionar_cachorro(request):
     serializer = CachorroSerializer(data=request.data)
     if serializer.is_valid():
