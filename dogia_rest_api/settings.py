@@ -34,10 +34,13 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
 # Allowed hosts
-ALLOWED_HOSTS=["10.0.0.114", "127.0.0.1", "localhost", "34.28.233.41"]
+ALLOWED_HOSTS=["10.0.0.114", "127.0.0.1", "localhost", "34.28.233.41", "192.168.2.76"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "http://localhost:8080",
+    "192.168.2.76:8080",
+    "192.168.2.76:4200"
 ]
 
 
