@@ -1,0 +1,12 @@
+{
+  "routes": [
+    "/",
+    "/cachorros",
+    "/cadastro/cachorro/avistado",
+    "/cadastro/cachorro/buscado",
+    "/cadastro/usuario",
+    "/dashboard",
+    "/login",
+    "/sobre"
+  ]
+}

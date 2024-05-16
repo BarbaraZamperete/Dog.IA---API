@@ -12,7 +12,14 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic.base import TemplateView
 
+from django.views import static
+
+# Serves the index page
+class HomePageView(TemplateView):
+  def get(self, request, **kwargs):
+      return static.serve(request,'index.html', 'dist/dog.ia/browser/')
 
 ###################################################################################
 ############################ USUÁRIOS #############################################
