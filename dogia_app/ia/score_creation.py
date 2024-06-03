@@ -17,7 +17,7 @@ def sigmoid(x):
 
 def score_creation(cachorro_buscado, cachorro_avistado, distancia):
 
-    ind_g = sigmoid(1 if cachorro_buscado.genero == cachorro_avistado.genero else 0)
-    ind_b = sigmoid(1 if cachorro_buscado.raca == cachorro_avistado.raca else 0)
+    ind_g = (1 if cachorro_buscado.genero == cachorro_avistado.genero else 0.2)
+    ind_b = (cachorro_buscado.raca_certeza if cachorro_buscado.raca == cachorro_avistado.raca else 0.5)
 
     return distancia * ind_g * ind_b

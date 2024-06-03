@@ -5,7 +5,8 @@ from rest_framework.authtoken.models import Token
 from django.db.models import F, Max, Min, Sum
 import os
 
-from .models import Imagem, Combinacao, Cachorro
+from .models import Imagem, Combinacao, Cachorro, Raca
+from .ia.breed_classification import breed
 from .ia.embedding_creation import embedding_creation
 from .ia.score_creation import distance_cal, score_creation
 
@@ -45,6 +46,24 @@ def process_image(sender, instance, created, **kwargs):
         embedding_values = embedding_values_np.flatten().tolist()
         instance.embedding = embedding_values
         instance.save()
+
+        racas = Raca.objects.all().order_by('id')
+        print(racas)
+
+        # Obter a raça e a pontuação da imagem
+        raca_certeza, raca = breed(image_path, racas)
+        print(raca)
+        print(raca_certeza)
+
+        # Obter a instância do cachorro correspondente
+        cachorro = Cachorro.objects.get(id=instance.cachorro.id)
+
+        # Atualizar os campos de raça e pontuação
+        cachorro.raca = raca
+        cachorro.raca_certeza = float(raca_certeza)
+
+        # Salvar as mudanças
+        cachorro.save()
 
         if (instance.cachorro.tipo == 1):
         
