@@ -9,6 +9,7 @@ from .models import Imagem, Combinacao, Cachorro, Raca
 from .ia.breed_classification import breed
 from .ia.embedding_creation import embedding_creation
 from .ia.score_creation import distance_cal, score_creation
+from .ia.dog_box import create_box
 
 def calc_min_distancia():
     return Combinacao.objects.all().aggregate(Min('distancia_bruta'))['distancia_bruta__min'] or 0
@@ -42,7 +43,11 @@ def update_combinacoes(id):
 def process_image(sender, instance, created, **kwargs):
     if created and not instance.embedding:
         image_path = os.path.join(settings.MEDIA_ROOT, str(instance.caminho))
-        embedding_values_np = embedding_creation(image_path)
+        # Geração das bouding boxes
+        xml_output_path = os.path.splitext(image_path)[0] + '.xml'
+        image_com_box = create_box(image_path, xml_output_path)
+        #Geraçao dos embbedings a partir da imagem recortada
+        embedding_values_np = embedding_creation(image_com_box)
         embedding_values = embedding_values_np.flatten().tolist()
         instance.embedding = embedding_values
         instance.save()
@@ -147,4 +152,14 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 def delete_cachorro_images(sender, instance, **kwargs):
     # Excluir imagens associadas ao cachorro ao excluir o cachorro
     for imagem in instance.imagem.all():
+        # Obter o caminho do arquivo XML
+        print(imagem.caminho.path)
+        image_path = imagem.caminho.path
+        xml_path = os.path.splitext(image_path)[0] + '.xml'
+        
+        # Verificar se o arquivo XML existe e excluí-lo
+        if os.path.exists(xml_path):
+            os.remove(xml_path)
+
         imagem.caminho.delete()  # Exclui a imagem do diretório de uploads
+        
