@@ -34,18 +34,20 @@ def pre_process_img(path):
 
 
 def breed (path, racas):
-    model = load_model('D:/Bah/Documentos/ESTUDO/UFRR/TCC/TCC-Codes/dogia_django/dogia_app/ia/model/dog_breed_xception_part1.h5')
+    model = load_model('C:/Users/barbarazamperete/Documents/Barbara/TCC/Dog.IA---API/dogia_app/ia/model/dog_breed_xception_part1.h5')
     
     img = pre_process_img(path)
 
     predictions = model.predict(img)
-    predictions_list = [(score, racas[i+1]) for i, score in enumerate(predictions[0])]
+    predictions_list = [(score, racas[i]) for i, score in enumerate(predictions[0])]
     predictions_list.sort(reverse=True, key=lambda x: x[0])
     # top = predictions_list[:10]
-    top = predictions_list[0]
+    top = predictions_list[:3]
     print(top)
-    print(top[0])
-    if (top[0] < 0.5):
-        return (0, racas[0])
-    else:
-        return (top[0], top[1])
+    # print(top[0])
+    # if (top[0] < 0.5):
+    #     return (0, racas[0])
+    # else:
+    #     return (top[0], top[1])
+
+breed("C:/Users/barbarazamperete/Desktop/dogia-imgs/Fotos do Formulario/yorkshire.1.1.jpeg", BREED_LIST)
