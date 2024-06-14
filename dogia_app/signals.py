@@ -53,9 +53,9 @@ def process_image(sender, instance, created, **kwargs):
         instance.save()
 
         racas = Raca.objects.all().order_by('id')
-        print(racas)
 
         # Obter a raça e a pontuação da imagem
+        # raca_certeza, raca = breed(image_com_box, racas)
         raca_certeza, raca = breed(image_path, racas)
         print(raca)
         print(raca_certeza)

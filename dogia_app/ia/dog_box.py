@@ -56,9 +56,5 @@ def create_box(image_path, output_xml):
 
     cropped_images = crop_img(detections, image)
     create_xml(detections, image_path, output_xml)
-
-    cv2.imshow('Dog Detection', cropped_images)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
     return cropped_images
 

@@ -51,7 +51,7 @@ class Cachorro(models.Model):
 
     nome = models.CharField(max_length=50, default=None, null=True, blank=True)
     raca = models.ForeignKey(Raca, on_delete=models.CASCADE, blank=True, null=True, related_name='raca')
-    raca_certeza = models.FloatField(default=0)
+    raca_certeza = models.FloatField(default=0, null=True, blank=True)
     genero = models.SmallIntegerField(choices=GENERO_CHOICES)
     status = models.BooleanField(default=True)
     tipo = models.SmallIntegerField(choices=TIPO_CHOICES, null=False, default=1)
