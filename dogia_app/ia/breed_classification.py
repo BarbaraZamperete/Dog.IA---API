@@ -46,6 +46,6 @@ def breed (path, racas):
     print(top)
     # print(top[0])
     if (top[0] < 0.5):
-        return (0, racas[0])
+        return (0, list(racas)[-1])
     else:
         return (top[0], top[1])
